@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ travel_option.title }} - Travel Booker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Travel Details -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <h1 class="card-title">{{ travel_option.title }}</h1>
+                        <span class="badge bg-primary fs-6">{{ travel_option.get_type_display }}</span>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-map-marker-alt text-primary"></i> Route</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="text-center me-3">
+                                    <i class="fas fa-plane-departure text-success"></i>
+                                    <div class="small text-muted">{{ travel_option.source }}</div>
+                                </div>
+                                <div class="flex-grow-1 text-center">
+                                    <i class="fas fa-arrow-right text-muted"></i>
+                                </div>
+                                <div class="text-center ms-3">
+                                    <i class="fas fa-plane-arrival text-danger"></i>
+                                    <div class="small text-muted">{{ travel_option.destination }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-calendar-alt text-primary"></i> Schedule</h5>
+                            <p class="mb-1">
+                                <strong>Departure:</strong> {{ travel_option.departure_datetime|date:"l, F d, Y" }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Time:</strong> {{ travel_option.departure_datetime|time:"H:i" }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-dollar-sign text-primary"></i> Pricing</h5>
+                            <div class="d-flex align-items-center">
+                                <span class="fs-3 fw-bold text-success me-2">${{ travel_option.price }}</span>
+                                <span class="text-muted">per seat</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-chair text-primary"></i> Availability</h5>
+                            <div class="d-flex align-items-center">
+                                <span class="fs-4 fw-bold me-2">{{ travel_option.available_seats }}</span>
+                                <span class="text-muted">seats available</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if travel_option.available_seats == 0 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>No seats available</strong> - This travel option is fully booked.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Booking Form -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="fas fa-ticket-alt"></i> Book Now
+                    </h4>
+                    
+                    {% if user.is_authenticated %}
+                        {% if travel_option.available_seats > 0 %}
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            
+                            <div class="d-grid mt-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-check"></i> Confirm Booking
+                                </button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-times-circle"></i>
+                            No seats available for booking.
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <div class="text-center">
+                        <i class="fas fa-user-lock fa-3x text-muted mb-3"></i>
+                        <h5>Login Required</h5>
+                        <p class="text-muted">Please login to book this travel option.</p>
+                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <p class="mt-2">
+                            <small class="text-muted">
+                                Don't have an account? 
+                                <a href="{% url 'bookings:register' %}">Register here</a>
+                            </small>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Info -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle"></i> Quick Info</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-clock text-primary"></i> Booking closes 2 hours before departure</li>
+                        <li><i class="fas fa-undo text-primary"></i> Free cancellation up to 24 hours before departure</li>
+                        <li><i class="fas fa-credit-card text-primary"></i> Secure payment processing</li>
+                        <li><i class="fas fa-headset text-primary"></i> 24/7 customer support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Back to Search -->
+    <div class="text-center mt-4">
+        <a href="{% url 'bookings:travel_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Search
+        </a>
+    </div>
+</div>
+{% endblock %}

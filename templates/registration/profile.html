@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile - Travel Booker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">
+                        <i class="fas fa-user-edit"></i> Profile Settings
+                    </h2>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <h5><i class="fas fa-info-circle"></i> Profile Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Username:</strong> {{ user.username }}</p>
+                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                <p><strong>First Name:</strong> {{ user.first_name|default:"Not set" }}</p>
+                                <p><strong>Last Name:</strong> {{ user.last_name|default:"Not set" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Phone:</strong> {{ profile.phone|default:"Not set" }}</p>
+                                <p><strong>Address:</strong> {{ profile.address|default:"Not set" }}</p>
+                                <p><strong>Member Since:</strong> {{ profile.created_at|date:"M d, Y" }}</p>
+                                <p><strong>Last Updated:</strong> {{ profile.updated_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

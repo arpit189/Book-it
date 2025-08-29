@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking #{{ booking.id }} - Travel Booker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <h1 class="card-title">Booking #{{ booking.id }}</h1>
+                        <span class="badge {% if booking.status == 'confirmed' %}bg-success{% else %}bg-danger{% endif %} fs-6">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <!-- Travel Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-plane"></i> Travel Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>{{ booking.travel_option.title }}</h6>
+                                    <p class="text-muted">{{ booking.travel_option.get_type_display }}</p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <span class="badge bg-primary">{{ booking.travel_option.get_type_display }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>From:</strong> {{ booking.travel_option.source }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>To:</strong> {{ booking.travel_option.destination }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Departure Date:</strong> {{ booking.travel_option.departure_datetime|date:"l, F d, Y" }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Departure Time:</strong> {{ booking.travel_option.departure_datetime|time:"H:i" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Booking Details -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-ticket-alt"></i> Booking Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Number of Seats:</strong> {{ booking.num_seats }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Price per Seat:</strong> ${{ booking.travel_option.price }}
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Total Price:</strong>
+                                </div>
+                                <div class="col-md-6">
+                                    <span class="fs-4 fw-bold text-success">${{ booking.total_price }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Booking Timeline -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-clock"></i> Booking Timeline</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Booking Date:</strong> {{ booking.booking_date|date:"l, F d, Y" }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Booking Time:</strong> {{ booking.booking_date|time:"H:i" }}
+                                </div>
+                            </div>
+                            {% if booking.updated_at != booking.booking_date %}
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <strong>Last Updated:</strong> {{ booking.updated_at|date:"l, F d, Y" }}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Updated Time:</strong> {{ booking.updated_at|time:"H:i" }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'bookings:booking_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Bookings
+                        </a>
+                        {% if booking.can_cancel %}
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="fas fa-times"></i> Cancel Booking
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+{% if booking.can_cancel %}
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel your booking for <strong>{{ booking.travel_option.title }}</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Important:</strong> This action cannot be undone. Your seats will be released and made available to other travelers.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Booking</button>
+                <form method="post" action="{% url 'bookings:cancel_booking' booking.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Yes, Cancel Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

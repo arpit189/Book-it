@@ -384,7 +384,7 @@ If you encounter any issues:
 
 1. Check the [Issues](https://github.com/yourusername/travel-booker/issues) page
 2. Create a new issue with detailed description
-3. Contact: your-email@example.com
+3. Contact: arpit1892004@gmail.com
 
 ## 🎯 Roadmap
 
